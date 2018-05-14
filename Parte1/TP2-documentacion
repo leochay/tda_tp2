@@ -1,0 +1,54 @@
+Parte 1
+Detalles de implementación.
+
+El script spies.py tiene una opción de ayuda que se puede ver con -h:
+
+usage: spies.py [-h] algorithm spy1_x spy1_y spy2_x spy2_y airport_x airport_y
+
+positional arguments:
+  algorithm   algorithm to use: B for BFS, D for Dijkstra
+  spy1_x      x coord for spy 1
+  spy1_y      y coord for spy 1
+  spy2_x      x coord for spy 2
+  spy2_y      y coord for spy 2
+  airport_x   x coord for airport
+  airport_y   y coord for airport
+
+optional arguments:
+  -h, --help  show this help message and exit
+
+El archivo mapa.coords viene con un caso de ejemplo que se puede ejecutar así:
+	python spies.py B 1 1 2 1 4 4
+o bien, si se quiere usar Dijkstra:
+	python spies.py D 1 1 2 1 4 4
+
+La salida del programa indicará cuál de los 2 espías llegará primero al aeropuerto, los caminos mínimos y las distancias.
+
+1.a) La implementación se encuentra en el método BFS(map_graph, start_node, end_node) del archivo spies.py
+El método implementa el algoritmo BFS con la modificación de cortar la ejecución cuando se visita el nodo "end_node".
+Devuelve la cantidad de aristas (mínimas) que existen desde "start_node" hasta "end_node" en el grafo "map_graph".
+En la lista "layers" se almacenan las capas del algoritmo, de manera que la cantidad de aristas antes mencionada será
+equivalente al nivel de la capa siguiente (es decir, layer_index+1).
+Para el manejo de nodos, se encapsularon las coordenadas en la clase "Node", implementando los métodos __hash__
+y __eq__, para poder utilizar sus objetos como claves en diccionarios.
+El grafo del mapa se implementó con un diccionario cuyas claves son los nodos y sus valores conjuntos de nodos adyacentes.
+
+1.b) La implementación se encuentra en el método dijkstra(map_graph, start_node, end_node) del archivo spies.py
+Se basó en el algoritmo BFS implementado en 1.a), agregándole el uso de una cola de prioridad para mantener los
+nodos por visitar en orden ascendente de costo (distancia euclídea implementada en get_distance() de la clase Node).
+La cola se implementó usando la librería heapq de Python 2.7, la cual permite manipular listas como si fuesen heaps:
+	priority_queue = []
+	heapq.heappush(priority_queue, (0, start_node))
+La tupla pasada como segundo parámetro (0, start_node) contiene (<distancia euclídea>, <nodo>).
+Es por esto que luego se referencia al nodo actual como "node_tuple_i[1]"
+El algoritmo termina cuando desencola el nodo "end_node" (el aeropuerto).
+
+1.c) La complejidad adicional es de O(log(V)), siendo V la cantidad de vértices en el mapa, y log(V) la profundidad
+del árbol de recorrido (árbol BFS). Esto se debe a que dicho árbol se recorre desde el nodo final ("end_node") hasta
+la raíz ("start_node") en O(log(V)). La actualización del árbol BFS dentro del algoritmo se hace en tiempo constante O(1)
+ya que los árboles se implementan usando un diccionario cuyas claves son los nodos y los valores son conjuntos de nodos
+adyacentes.
+
+1.d) La implementación se encuentra en el método print_path(bfs_tree, start_node, end_node) del archivo spies.py
+El método imprime el camino desde el destino "end_node" hasta la raíz del árbol.
+

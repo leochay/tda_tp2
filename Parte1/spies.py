@@ -42,6 +42,27 @@ class Node:
 #Grafo del mapa
 map_graph = {} #sera un diccionario: clave= nodo, valor= conjunto de nodos adyacentes
 
+#O(log(V)), la profundidad del arbol sera a lo sumo log(V)
+#Imprime el camino desde "end_node" hasta "start_node"
+def print_path(bfs_tree, start_node, end_node):
+	try:
+		previous_node = bfs_tree[end_node].pop()
+		current_node = end_node
+		print "-> Camino recorrido:"
+		print end_node
+
+		while previous_node != start_node:
+			print previous_node
+			next_previous_node = bfs_tree[previous_node].pop()
+			if next_previous_node == current_node: #todos los nodos son adyacentes al anterior y al siguiente
+				next_previous_node = bfs_tree[previous_node].pop()
+			current_node = previous_node 
+			previous_node = next_previous_node
+		print start_node
+		print "-> Fin del camino"
+	except KeyError: #pop() de un Set, lanza un KeyError cuando ya no quedan elementos
+		print "fin del camino <-"
+
 #O(V + E)
 def BFS(map_graph, start_node, end_node):
 	bfs_tree = {} #el arbol BFS
@@ -57,12 +78,8 @@ def BFS(map_graph, start_node, end_node):
 
 	while new_nodes_discovered:
 		new_nodes_discovered = False
-		#print "Start layer " + str(layer_index)
 		for current_layer_node_i in layers[layer_index]: #se recorre la capa actual
 			next_level_nodes_set = map_graph[current_layer_node_i] #set de nodos adyacentes
-			#print "BFS: next level nodes set => "
-			#print next_level_nodes_set
-
 			layers.append(set())
 			for adj_node in next_level_nodes_set: #se recorren todos los adyacentes
 				if adj_node not in discovered_nodes:
@@ -74,13 +91,16 @@ def BFS(map_graph, start_node, end_node):
 						bfs_tree.update({current_layer_node_i:{adj_node}}) #se va armando el arbol BFS
 					else:
 						bfs_tree[current_layer_node_i].add(adj_node) #se va armando el arbol BFS
+					bfs_tree.update({adj_node:{current_layer_node_i}})
 					if adj_node == end_node:
+						print_path(bfs_tree, start_node, end_node)
 						return layer_index + 1
 		layer_index += 1
 
 	return -1
 
 def dijkstra(map_graph, start_node, end_node):
+	bfs_tree = {}
 	nodes_distances = {} #diccionario de distancias
 	nodes_distances[start_node] = 0
 
@@ -94,8 +114,8 @@ def dijkstra(map_graph, start_node, end_node):
 	while priority_queue:
 		node_tuple_i = heapq.heappop(priority_queue)
 		if end_node == node_tuple_i[1]:
-			#print "BFS: se visito el nodo final!"
-			return node_tuple_i[0]
+			print_path(bfs_tree, start_node, end_node)
+			return node_tuple_i[0] #se devuelve la distancia acumulada en el nodo
 		#print "Nodo actual ----> " + str( node_tuple_i[1])
 		next_level_nodes_set = map_graph[node_tuple_i[1]]
 		for adj_node in next_level_nodes_set: #se recorren los adyacentes
@@ -105,7 +125,11 @@ def dijkstra(map_graph, start_node, end_node):
 				#Se encontro una distancia menor
 				nodes_distances[adj_node] = new_distance
 				heapq.heappush(priority_queue, (new_distance, adj_node))
-				
+				if node_tuple_i[1] not in bfs_tree:
+					bfs_tree.update({node_tuple_i[1]:{adj_node}}) #se va armando el arbol BFS
+				else:
+					bfs_tree[node_tuple_i[1]].add(adj_node) #se va armando el arbol BFS
+				bfs_tree.update({adj_node:{node_tuple_i[1]}})
 	return 0
 
 def load_map_from_file(map_graph):
