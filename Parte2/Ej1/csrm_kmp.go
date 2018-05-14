@@ -2,6 +2,7 @@
 package main
 
 import (
+	"os"
 	"errors"
 	"fmt"
 )
@@ -14,7 +15,7 @@ type KMP struct {
 
 // For debugging
 func (kmp *KMP) String() string {
-	return fmt.Sprintf("pattern: %v\nprefix: %v", kmp.pattern, kmp.prefix)
+	return fmt.Sprintf("pattern: %s\nprefix: %s", kmp.pattern, kmp.prefix)
 }
 
 // compile new prefix-array given argument
@@ -140,14 +141,39 @@ func (kmp *KMP) FindAllStringIndex(s string) []int {
 	return match
 }
 
-func main() {
-	var a string = "abracadabra"
-	var b string = "dabraabraca"
+func rotate(slice []byte) []byte {
+	//slice:=[]byte(a)
+	end :=slice[0]
+	for i := 0; i < len(slice)-1; i++ {
+		slice[i]=slice[i+1]
+	}
+	slice[len(slice)-1]=end
+	return slice
+}
 
-	kmp, _ := NewKMP(b)
-	//ints := kmp.FindAllStringIndex(a+a)
-	if kmp.ContainedIn(a+a) {
-		fmt.Println("%s es una rotacion de %s",a,b)
-	 } 
-	//fmt.Println(ints)	
+func main() {
+	//var hello string ="hola\n"
+	//var a string = "abracadabra"
+	//var b string = "dabraabraca"
+	var s1 string = os.Args[1]
+	//var b string = "dabraabraca"
+	var s2 string = os.Args[2]
+	var match bool = false
+	kmp, _ := NewKMP(s1)
+	//fmt.Print(hello)
+	aux := []byte(s2)
+	i := 0
+	for i<len(aux){
+		i++
+		if (kmp.ContainedIn(string(aux))){
+			fmt.Printf("%s es una rotacion de %s\n",s2,s1)
+			i=len(aux)
+			match = true
+		}
+		//fmt.Println(string(aux))
+		aux=rotate(aux)
+	}
+	if !match {
+		fmt.Printf("%s no es una rotacion de %s\n",s2,s1)
+	}
 }
