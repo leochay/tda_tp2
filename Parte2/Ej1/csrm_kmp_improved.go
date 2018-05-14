@@ -141,39 +141,19 @@ func (kmp *KMP) FindAllStringIndex(s string) []int {
 	return match
 }
 
-func rotate(slice []byte) []byte {
-	//slice:=[]byte(a)
-	end :=slice[0]
-	for i := 0; i < len(slice)-1; i++ {
-		slice[i]=slice[i+1]
-	}
-	slice[len(slice)-1]=end
-	return slice
-}
-
 func main() {
-	//var hello string ="hola\n"
 	//var a string = "abracadabra"
 	//var b string = "dabraabraca"
 	var s1 string = os.Args[1]
 	//var b string = "dabraabraca"
 	var s2 string = os.Args[2]
-	var match bool = false
-	kmp, _ := NewKMP(s1)
-	//fmt.Print(hello)
-	aux := []byte(s2)
-	i := 0
-	for i<len(aux){
-		i++
-		if (kmp.ContainedIn(string(aux))){
-			fmt.Printf("%s es una rotacion de %s\n",s2,s1)
-			i=len(aux)
-			match = true
-		}
-		//fmt.Println(string(aux))
-		aux=rotate(aux)
-	}
-	if !match {
+
+	kmp, _ := NewKMP(s2)
+	//ints := kmp.FindAllStringIndex(a+a)
+	if kmp.ContainedIn(s1+s1) {
+		fmt.Printf("%s es una rotacion de %s\n",s2,s1)
+	} else {
 		fmt.Printf("%s no es una rotacion de %s\n",s2,s1)
 	}
+	//fmt.Println(ints)	
 }
